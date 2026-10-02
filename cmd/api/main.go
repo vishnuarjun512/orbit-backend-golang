@@ -25,7 +25,7 @@ func main() {
 
 	log.Println("PostgreSQL connected successfully!")
 
-	if cfg.AppEnv == "development" {
+	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		gin.SetMode(gin.DebugMode)
