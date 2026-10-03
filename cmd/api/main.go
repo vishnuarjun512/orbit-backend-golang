@@ -7,6 +7,7 @@ import (
 
 	"orbit-backend-golang/internal/config"
 	"orbit-backend-golang/internal/database"
+	"orbit-backend-golang/internal/routes"
 )
 
 func main() {
@@ -31,18 +32,14 @@ func main() {
 		gin.SetMode(gin.DebugMode)
 	}
 
-	router := gin.New()
-
-	// Keep panic recovery, but disable automatic request logging.
-
-	router.Use(gin.Recovery())
+	router := routes.MainRouter(db)
 
 	if err := router.SetTrustedProxies(nil); err != nil {
 		log.Fatal(err)
 	}
 
 	// Health check endpoint
-	router.GET("/health", func(c *gin.Context) {
+	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status":  "success",
 			"message": "API is running",
@@ -50,7 +47,7 @@ func main() {
 	})
 
 	// Start server
-	log.Println("Server running on port:", cfg.AppPort)
+	log.Println("Server running on port: http://localhost:" + cfg.AppPort)
 
 	if err := router.Run(":" + cfg.AppPort); err != nil {
 		log.Fatal("Server failed: ", err)

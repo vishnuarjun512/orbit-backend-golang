@@ -15,66 +15,70 @@ authentication provider.
 > PostgreSQL connection. Authentication and the remaining application
 > APIs are under development.
 
-------------------------------------------------------------------------
+---
 
 ## Table of contents
 
--   [Technology stack](#technology-stack)
--   [Current features and progress](#current-features-and-progress)
--   [Project structure](#project-structure)
--   [Getting started](#getting-started)
--   [Environment variables](#environment-variables)
--   [Running the API](#running-the-api)
--   [Database and migrations](#database-and-migrations)
--   [Database schema](#database-schema)
-    -   [Entity relationship overview](#entity-relationship-overview)
-    -   [Users and authentication](#1-users-and-authentication)
-    -   [Workspaces and membership](#2-workspaces-and-membership)
-    -   [Projects and tasks](#3-projects-and-tasks)
-    -   [Teams and tags](#4-teams-and-tags)
-    -   [Collaboration and
-        notifications](#5-collaboration-and-notifications)
--   [Multi-tenancy and data
-    integrity](#multi-tenancy-and-data-integrity)
--   [Authentication design](#authentication-design)
--   [API endpoint](#api-endpoint)
--   [Development commands](#development-commands)
--   [Security notes](#security-notes)
--   [Roadmap](#roadmap)
+- [Technology stack](#technology-stack)
+- [Current features and progress](#current-features-and-progress)
+- [Project structure](#project-structure)
+- [Getting started](#getting-started)
+- [Environment variables](#environment-variables)
+- [Running the API](#running-the-api)
+- [Database and migrations](#database-and-migrations)
+- [Database schema](#database-schema)
+  - [Entity relationship overview](#entity-relationship-overview)
+  - [Users and authentication](#1-users-and-authentication)
+  - [Workspaces and membership](#2-workspaces-and-membership)
+  - [Projects and tasks](#3-projects-and-tasks)
+  - [Teams and tags](#4-teams-and-tags)
+  - [Collaboration and
+    notifications](#5-collaboration-and-notifications)
+- [Multi-tenancy and data
+  integrity](#multi-tenancy-and-data-integrity)
+- [Authentication design](#authentication-design)
+- [API endpoint](#api-endpoint)
+- [Development commands](#development-commands)
+- [Security notes](#security-notes)
+- [Roadmap](#roadmap)
 
-------------------------------------------------------------------------
+---
 
 ## Technology stack
 
-  --------------------------------------------------------------------------------
-  Area                    Technology                       Purpose
-  ----------------------- -------------------------------- -----------------------
-  Language                Go                               Backend application
+---
 
-  HTTP framework          Gin                              HTTP routing and
-                                                           handlers
+Area Technology Purpose
 
-  Database                PostgreSQL                       Persistent application
-                                                           data
+---
 
-  Database driver         pgx / pgxpool                    PostgreSQL connectivity
-                                                           and connection pooling
+Language Go Backend application
 
-  Database hosting        Supabase PostgreSQL              Hosted PostgreSQL
-                                                           instance
+HTTP framework Gin HTTP routing and
+handlers
 
-  Configuration           godotenv                         Load local environment
-                                                           variables
+Database PostgreSQL Persistent application
+data
 
-  Migrations              Goose                            Version-controlled SQL
-                                                           schema migrations
+Database driver pgx / pgxpool PostgreSQL connectivity
+and connection pooling
 
-  Development             Air                              Live-reload development
-                                                           workflow
+Database hosting Supabase PostgreSQL Hosted PostgreSQL
+instance
 
-  Password hashing        Argon2id                         Password hashing for
-                          (`golang.org/x/crypto/argon2`)   authentication
-  --------------------------------------------------------------------------------
+Configuration godotenv Load local environment
+variables
+
+Migrations Goose Version-controlled SQL
+schema migrations
+
+Development Air Live-reload development
+workflow
+
+Password hashing Argon2id Password hashing for
+(`golang.org/x/crypto/argon2`) authentication
+
+---
 
 The project uses SQL migrations and direct `pgx` queries rather than an
 ORM.
@@ -83,37 +87,37 @@ ORM.
 
 ### Implemented
 
--   Go module and initial application structure.
--   Gin HTTP server.
--   Environment-based application configuration.
--   PostgreSQL connection using `pgxpool`.
--   Database connection health check during startup.
--   `/health` endpoint.
--   Goose migration workflow.
--   Initial relational database schema for users, authentication,
-    workspaces, projects, tasks, teams, tags, comments, attachments,
-    activity logs, and notifications.
--   Argon2id password-hashing utility (initial implementation).
+- Go module and initial application structure.
+- Gin HTTP server.
+- Environment-based application configuration.
+- PostgreSQL connection using `pgxpool`.
+- Database connection health check during startup.
+- `/health` endpoint.
+- Goose migration workflow.
+- Initial relational database schema for users, authentication,
+  workspaces, projects, tasks, teams, tags, comments, attachments,
+  activity logs, and notifications.
+- Argon2id password-hashing utility (initial implementation).
 
 ### In progress / planned
 
--   User registration and login.
--   Access-token and refresh-token authentication.
--   Authentication and authorization middleware.
--   Workspace creation, membership, and invitations.
--   Project and task CRUD APIs.
--   Team and tag management.
--   Comments and attachments APIs.
--   Activity feed and notifications APIs.
--   Input validation, centralized error handling, and API tests.
--   Email verification and password reset flows.
+- User registration and login.
+- Access-token and refresh-token authentication.
+- Authentication and authorization middleware.
+- Workspace creation, membership, and invitations.
+- Project and task CRUD APIs.
+- Team and tag management.
+- Comments and attachments APIs.
+- Activity feed and notifications APIs.
+- Input validation, centralized error handling, and API tests.
+- Email verification and password reset flows.
 
 ## Project structure
 
 The backend is organized by responsibility. The structure will grow as
 the API is implemented.
 
-``` text
+```text
 orbit-backend-golang/
 ├── cmd/
 │   └── api/
@@ -140,7 +144,7 @@ orbit-backend-golang/
 
 The intended request flow is:
 
-``` text
+```text
 HTTP Request
     |
     v
@@ -167,15 +171,15 @@ database access.
 
 ### Prerequisites
 
--   Go (use a version compatible with the dependencies in `go.mod`).
--   PostgreSQL database. The current development setup uses Supabase
-    PostgreSQL.
--   Goose CLI.
--   Air (optional, for live reload).
+- Go (use a version compatible with the dependencies in `go.mod`).
+- PostgreSQL database. The current development setup uses Supabase
+  PostgreSQL.
+- Goose CLI.
+- Air (optional, for live reload).
 
 Install the development tools if they are not already installed:
 
-``` bash
+```bash
 go install github.com/pressly/goose/v3/cmd/goose@latest
 go install github.com/air-verse/air@latest
 ```
@@ -185,14 +189,14 @@ Make sure Go's binary directory is included in your shell `PATH` so the
 
 ### Clone the repository
 
-``` bash
+```bash
 git clone <YOUR_GITHUB_REPOSITORY_URL>
 cd orbit-backend-golang
 ```
 
 ### Install Go dependencies
 
-``` bash
+```bash
 go mod download
 ```
 
@@ -205,20 +209,24 @@ template.
 
 The application configuration currently reads these values:
 
-  ---------------------------------------------------------------------------------------------------------------
-  Variable                Description             Example
-  ----------------------- ----------------------- ---------------------------------------------------------------
-  `APP_ENV`               Application environment `development`
+---
 
-  `APP_PORT`              HTTP server port        `8080`
+Variable Description Example
 
-  `DATABASE_URL`          PostgreSQL connection   `postgres://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require`
-                          URL                     
-  ---------------------------------------------------------------------------------------------------------------
+---
+
+`APP_ENV` Application environment `development`
+
+`APP_PORT` HTTP server port `8080`
+
+`DATABASE_URL` PostgreSQL connection `postgres://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require`
+URL
+
+---
 
 Example `.env.example`:
 
-``` dotenv
+```dotenv
 APP_ENV=development
 APP_PORT=8080
 DATABASE_URL=postgres://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require
@@ -232,7 +240,7 @@ credentials.
 
 From the project root:
 
-``` bash
+```bash
 go run ./cmd/api
 ```
 
@@ -241,13 +249,13 @@ by `APP_PORT`.
 
 The health endpoint is:
 
-``` http
+```http
 GET /health
 ```
 
 Expected response:
 
-``` json
+```json
 {
   "status": "success",
   "message": "API is running"
@@ -263,28 +271,32 @@ SQL file in `migrations/`. Goose records applied migrations in its own
 
 ### Current migration history
 
-  -----------------------------------------------------------------------
-  Migration                           Purpose
-  ----------------------------------- -----------------------------------
-  001                                 Users and authentication-related
-                                      user fields
+---
 
-  002                                 Authentication sessions,
-                                      email-verification tokens, and
-                                      password-reset tokens
+Migration Purpose
 
-  003                                 Workspaces, workspace members, and
-                                      workspace invitations
+---
 
-  004                                 Projects, project members, tasks,
-                                      and task dependencies
+001 Users and authentication-related
+user fields
 
-  005                                 Teams, team members, tags, task
-                                      tags, and project tags
+002 Authentication sessions,
+email-verification tokens, and
+password-reset tokens
 
-  006                                 Task comments, task attachments,
-                                      activity logs, and notifications
-  -----------------------------------------------------------------------
+003 Workspaces, workspace members, and
+workspace invitations
+
+004 Projects, project members, tasks,
+and task dependencies
+
+005 Teams, team members, tags, task
+tags, and project tags
+
+006 Task comments, task attachments,
+activity logs, and notifications
+
+---
 
 The migration filenames may have descriptive names; the numbers identify
 their execution order.
@@ -293,7 +305,7 @@ their execution order.
 
 Run these commands from the project root:
 
-``` bash
+```bash
 set -a
 source .env
 set +a
@@ -303,7 +315,7 @@ goose -dir ./migrations postgres "$DATABASE_URL" up
 
 ### Check migration status
 
-``` bash
+```bash
 set -a
 source .env
 set +a
@@ -313,7 +325,7 @@ goose -dir ./migrations postgres "$DATABASE_URL" status
 
 ### Create a new migration
 
-``` bash
+```bash
 goose -dir ./migrations create descriptive_migration_name sql
 ```
 
@@ -324,7 +336,7 @@ Add the schema change to the generated file, including both
 changes. Create a new migration instead. This keeps database history
 reproducible across environments.
 
-------------------------------------------------------------------------
+---
 
 # Database schema
 
@@ -337,7 +349,7 @@ tasks, teams, and tags.
 
 ## Entity relationship overview
 
-``` text
+```text
 users
  ├── auth_sessions
  ├── email_verification_tokens
@@ -370,39 +382,43 @@ constraints are described below.
 
 Stores the platform's user accounts.
 
-  -----------------------------------------------------------------------
-  Column                  Type                    Description
-  ----------------------- ----------------------- -----------------------
-  `user_id`               UUID                    Primary key; generated
-                                                  automatically
+---
 
-  `email`                 VARCHAR(255)            User email address;
-                                                  unique without case
-                                                  sensitivity
+Column Type Description
 
-  `username`              VARCHAR(50)             Public username; unique
-                                                  without case
-                                                  sensitivity
+---
 
-  `full_name`             VARCHAR(100)            User's display name
+`user_id` UUID Primary key; generated
+automatically
 
-  `password_hash`         TEXT                    Argon2id password hash;
-                                                  never store plaintext
-                                                  passwords
+`email` VARCHAR(255) User email address;
+unique without case
+sensitivity
 
-  `avatar_url`            TEXT                    Optional
-                                                  profile-picture URL
+`username` VARCHAR(50) Public username; unique
+without case
+sensitivity
 
-  `email_verified_at`     TIMESTAMPTZ             Email verification
-                                                  timestamp; nullable
+`full_name` VARCHAR(100) User's display name
 
-  `status`                VARCHAR(20)             `active`, `suspended`,
-                                                  or `deleted`
+`password_hash` TEXT Argon2id password hash;
+never store plaintext
+passwords
 
-  `created_at`            TIMESTAMPTZ             Account creation time
+`avatar_url` TEXT Optional
+profile-picture URL
 
-  `updated_at`            TIMESTAMPTZ             Last update time
-  -----------------------------------------------------------------------
+`email_verified_at` TIMESTAMPTZ Email verification
+timestamp; nullable
+
+`status` VARCHAR(20) `active`, `suspended`,
+or `deleted`
+
+`created_at` TIMESTAMPTZ Account creation time
+
+`updated_at` TIMESTAMPTZ Last update time
+
+---
 
 **Important constraints:** `user_id` is the primary key. Email and
 username have unique indexes on `LOWER(...)`, so values differing only
@@ -413,35 +429,39 @@ by letter case are treated as duplicates.
 Represents a user's authenticated session, typically one per device or
 browser.
 
-  -----------------------------------------------------------------------
-  Column                  Type                    Description
-  ----------------------- ----------------------- -----------------------
-  `session_id`            UUID                    Primary key
+---
 
-  `user_id`               UUID                    References
-                                                  `users.user_id`
+Column Type Description
 
-  `refresh_token_hash`    TEXT                    Unique hash of the
-                                                  refresh token; raw
-                                                  token is not stored
+---
 
-  `device_name`           VARCHAR(100)            Optional device
-                                                  description
+`session_id` UUID Primary key
 
-  `user_agent`            TEXT                    Client user-agent
-                                                  string
+`user_id` UUID References
+`users.user_id`
 
-  `ip_address`            INET                    Client IP address
+`refresh_token_hash` TEXT Unique hash of the
+refresh token; raw
+token is not stored
 
-  `last_used_at`          TIMESTAMPTZ             Last refresh/use time
+`device_name` VARCHAR(100) Optional device
+description
 
-  `expires_at`            TIMESTAMPTZ             Session expiration time
+`user_agent` TEXT Client user-agent
+string
 
-  `revoked_at`            TIMESTAMPTZ             Set when the session is
-                                                  revoked
+`ip_address` INET Client IP address
 
-  `created_at`            TIMESTAMPTZ             Session creation time
-  -----------------------------------------------------------------------
+`last_used_at` TIMESTAMPTZ Last refresh/use time
+
+`expires_at` TIMESTAMPTZ Session expiration time
+
+`revoked_at` TIMESTAMPTZ Set when the session is
+revoked
+
+`created_at` TIMESTAMPTZ Session creation time
+
+---
 
 Deleting a user cascades to their sessions. Indexes support looking up
 sessions by user and expiration time.
@@ -450,27 +470,31 @@ sessions by user and expiration time.
 
 Stores hashed, time-limited email-verification tokens.
 
-  Column          Type          Description
-  --------------- ------------- ----------------------------
-  `token_id`      UUID          Primary key
-  `user_id`       UUID          References `users.user_id`
-  `token_hash`    TEXT          Unique token hash
-  `expires_at`    TIMESTAMPTZ   Token expiration time
-  `consumed_at`   TIMESTAMPTZ   Set after successful use
-  `created_at`    TIMESTAMPTZ   Token creation time
+Column Type Description
+
+---
+
+`token_id` UUID Primary key
+`user_id` UUID References `users.user_id`
+`token_hash` TEXT Unique token hash
+`expires_at` TIMESTAMPTZ Token expiration time
+`consumed_at` TIMESTAMPTZ Set after successful use
+`created_at` TIMESTAMPTZ Token creation time
 
 ### `password_reset_tokens`
 
 Stores hashed, time-limited password-reset tokens.
 
-  Column          Type          Description
-  --------------- ------------- ----------------------------
-  `token_id`      UUID          Primary key
-  `user_id`       UUID          References `users.user_id`
-  `token_hash`    TEXT          Unique token hash
-  `expires_at`    TIMESTAMPTZ   Token expiration time
-  `consumed_at`   TIMESTAMPTZ   Set after successful use
-  `created_at`    TIMESTAMPTZ   Token creation time
+Column Type Description
+
+---
+
+`token_id` UUID Primary key
+`user_id` UUID References `users.user_id`
+`token_hash` TEXT Unique token hash
+`expires_at` TIMESTAMPTZ Token expiration time
+`consumed_at` TIMESTAMPTZ Set after successful use
+`created_at` TIMESTAMPTZ Token creation time
 
 Both token tables index `user_id`. Tokens should be random, single-use,
 expire, and be stored as hashes rather than raw token values.
@@ -482,15 +506,17 @@ expire, and be stored as hashes rather than raw token values.
 A workspace is the main tenant boundary in Orbit. Projects, tasks,
 teams, and tags belong to a workspace.
 
-  Column           Type           Description
-  ---------------- -------------- --------------------------------
-  `workspace_id`   UUID           Primary key
-  `name`           VARCHAR(100)   Workspace name
-  `slug`           VARCHAR(100)   Globally unique workspace slug
-  `description`    TEXT           Optional workspace description
-  `created_by`     UUID           References the creating user
-  `created_at`     TIMESTAMPTZ    Creation time
-  `updated_at`     TIMESTAMPTZ    Last update time
+Column Type Description
+
+---
+
+`workspace_id` UUID Primary key
+`name` VARCHAR(100) Workspace name
+`slug` VARCHAR(100) Globally unique workspace slug
+`description` TEXT Optional workspace description
+`created_by` UUID References the creating user
+`created_at` TIMESTAMPTZ Creation time
+`updated_at` TIMESTAMPTZ Last update time
 
 `created_by` references `users.user_id` with `ON DELETE RESTRICT`. A
 workspace cannot silently lose its creator through user deletion.
@@ -499,13 +525,15 @@ workspace cannot silently lose its creator through user deletion.
 
 Connects users to workspaces and assigns a role within each workspace.
 
-  Column           Type          Description
-  ---------------- ------------- ----------------------------------------
-  `workspace_id`   UUID          References `workspaces.workspace_id`
-  `user_id`        UUID          References `users.user_id`
-  `role`           VARCHAR(20)   `owner`, `admin`, `member`, or `guest`
-  `status`         VARCHAR(20)   `active` or `suspended`
-  `joined_at`      TIMESTAMPTZ   Membership creation time
+Column Type Description
+
+---
+
+`workspace_id` UUID References `workspaces.workspace_id`
+`user_id` UUID References `users.user_id`
+`role` VARCHAR(20) `owner`, `admin`, `member`, or `guest`
+`status` VARCHAR(20) `active` or `suspended`
+`joined_at` TIMESTAMPTZ Membership creation time
 
 **Primary key:** (`workspace_id`, `user_id`). This prevents a user from
 being added to the same workspace more than once.
@@ -517,38 +545,42 @@ one workspace and a member in another.
 
 Tracks invitations sent to people who may join a workspace.
 
-  -----------------------------------------------------------------------
-  Column                  Type                    Description
-  ----------------------- ----------------------- -----------------------
-  `invitation_id`         UUID                    Primary key
+---
 
-  `workspace_id`          UUID                    Workspace being joined
+Column Type Description
 
-  `email`                 VARCHAR(255)            Invitee email address
+---
 
-  `role`                  VARCHAR(20)             Invited role: `admin`,
-                                                  `member`, or `guest`
+`invitation_id` UUID Primary key
 
-  `token_hash`            TEXT                    Unique hash of the
-                                                  invitation token
+`workspace_id` UUID Workspace being joined
 
-  `invited_by`            UUID                    User who sent the
-                                                  invitation; nullable
+`email` VARCHAR(255) Invitee email address
 
-  `accepted_by`           UUID                    User who accepted;
-                                                  nullable
+`role` VARCHAR(20) Invited role: `admin`,
+`member`, or `guest`
 
-  `status`                VARCHAR(20)             `pending`, `accepted`,
-                                                  `revoked`, or `expired`
+`token_hash` TEXT Unique hash of the
+invitation token
 
-  `expires_at`            TIMESTAMPTZ             Invitation expiration
+`invited_by` UUID User who sent the
+invitation; nullable
 
-  `accepted_at`           TIMESTAMPTZ             Acceptance time
+`accepted_by` UUID User who accepted;
+nullable
 
-  `revoked_at`            TIMESTAMPTZ             Revocation time
+`status` VARCHAR(20) `pending`, `accepted`,
+`revoked`, or `expired`
 
-  `created_at`            TIMESTAMPTZ             Creation time
-  -----------------------------------------------------------------------
+`expires_at` TIMESTAMPTZ Invitation expiration
+
+`accepted_at` TIMESTAMPTZ Acceptance time
+
+`revoked_at` TIMESTAMPTZ Revocation time
+
+`created_at` TIMESTAMPTZ Creation time
+
+---
 
 The invitation references its workspace and optionally the users who
 sent and accepted it. The token is stored as a hash.
@@ -559,38 +591,42 @@ sent and accepted it. The token is stored as a hash.
 
 Stores projects within a workspace.
 
-  -----------------------------------------------------------------------
-  Column                  Type                    Description
-  ----------------------- ----------------------- -----------------------
-  `project_id`            UUID                    Primary key
+---
 
-  `workspace_id`          UUID                    Owning workspace
+Column Type Description
 
-  `name`                  VARCHAR(150)            Project name
+---
 
-  `project_key`           VARCHAR(20)             Workspace-scoped
-                                                  project identifier
+`project_id` UUID Primary key
 
-  `description`           TEXT                    Optional project
-                                                  description
+`workspace_id` UUID Owning workspace
 
-  `status`                VARCHAR(30)             `active`, `on_hold`,
-                                                  `completed`, or
-                                                  `archived`
+`name` VARCHAR(150) Project name
 
-  `visibility`            VARCHAR(20)             `workspace` or
-                                                  `private`
+`project_key` VARCHAR(20) Workspace-scoped
+project identifier
 
-  `start_date`            DATE                    Optional start date
+`description` TEXT Optional project
+description
 
-  `due_date`              DATE                    Optional due date
+`status` VARCHAR(30) `active`, `on_hold`,
+`completed`, or
+`archived`
 
-  `created_by`            UUID                    Creating user ID
+`visibility` VARCHAR(20) `workspace` or
+`private`
 
-  `created_at`            TIMESTAMPTZ             Creation time
+`start_date` DATE Optional start date
 
-  `updated_at`            TIMESTAMPTZ             Last update time
-  -----------------------------------------------------------------------
+`due_date` DATE Optional due date
+
+`created_by` UUID Creating user ID
+
+`created_at` TIMESTAMPTZ Creation time
+
+`updated_at` TIMESTAMPTZ Last update time
+
+---
 
 **Important constraints:** - (`workspace_id`, `project_key`) is unique,
 so project keys are unique within a workspace. - (`workspace_id`,
@@ -602,13 +638,15 @@ date when both are provided.
 
 Connects workspace members to projects.
 
-  Column           Type          Description
-  ---------------- ------------- -------------------------------------------
-  `workspace_id`   UUID          Workspace context
-  `project_id`     UUID          Project being joined
-  `user_id`        UUID          Member being added
-  `added_by`       UUID          Workspace member who added them; nullable
-  `joined_at`      TIMESTAMPTZ   Membership time
+Column Type Description
+
+---
+
+`workspace_id` UUID Workspace context
+`project_id` UUID Project being joined
+`user_id` UUID Member being added
+`added_by` UUID Workspace member who added them; nullable
+`joined_at` TIMESTAMPTZ Membership time
 
 **Primary key:** (`project_id`, `user_id`).
 
@@ -619,50 +657,54 @@ the same workspace. A project member must already be a workspace member.
 
 Stores tasks and subtasks inside projects.
 
-  -----------------------------------------------------------------------
-  Column                  Type                    Description
-  ----------------------- ----------------------- -----------------------
-  `task_id`               UUID                    Primary key
+---
 
-  `workspace_id`          UUID                    Owning workspace
+Column Type Description
 
-  `project_id`            UUID                    Parent project
+---
 
-  `parent_task_id`        UUID                    Optional parent task
-                                                  for subtasks
+`task_id` UUID Primary key
 
-  `title`                 VARCHAR(255)            Task title
+`workspace_id` UUID Owning workspace
 
-  `description`           TEXT                    Optional task
-                                                  description
+`project_id` UUID Parent project
 
-  `status`                VARCHAR(30)             Defaults to `todo`;
-                                                  intentionally flexible
-                                                  for future custom
-                                                  workflows
+`parent_task_id` UUID Optional parent task
+for subtasks
 
-  `priority`              VARCHAR(20)             `low`, `medium`,
-                                                  `high`, or `urgent`
+`title` VARCHAR(255) Task title
 
-  `assignee_id`           UUID                    Assigned workspace
-                                                  member; nullable
+`description` TEXT Optional task
+description
 
-  `created_by`            UUID                    Workspace member who
-                                                  created the task
+`status` VARCHAR(30) Defaults to `todo`;
+intentionally flexible
+for future custom
+workflows
 
-  `start_date`            TIMESTAMPTZ             Optional start time
+`priority` VARCHAR(20) `low`, `medium`,
+`high`, or `urgent`
 
-  `due_date`              TIMESTAMPTZ             Optional due time
+`assignee_id` UUID Assigned workspace
+member; nullable
 
-  `completed_at`          TIMESTAMPTZ             Completion time
+`created_by` UUID Workspace member who
+created the task
 
-  `position`              BIGINT                  Ordering value for
-                                                  lists and boards
+`start_date` TIMESTAMPTZ Optional start time
 
-  `created_at`            TIMESTAMPTZ             Creation time
+`due_date` TIMESTAMPTZ Optional due time
 
-  `updated_at`            TIMESTAMPTZ             Last update time
-  -----------------------------------------------------------------------
+`completed_at` TIMESTAMPTZ Completion time
+
+`position` BIGINT Ordering value for
+lists and boards
+
+`created_at` TIMESTAMPTZ Creation time
+
+`updated_at` TIMESTAMPTZ Last update time
+
+---
 
 **Important constraints:** - A task must belong to a project in the same
 workspace. - An assignee must be a member of the task's workspace. - The
@@ -681,13 +723,15 @@ introduced later.
 Represents dependencies between tasks. A task can depend on another task
 in the same project.
 
-  Column                 Type          Description
-  ---------------------- ------------- -----------------------------------
-  `workspace_id`         UUID          Workspace context
-  `project_id`           UUID          Project context
-  `task_id`              UUID          Task that has a dependency
-  `depends_on_task_id`   UUID          Task that must be completed first
-  `created_at`           TIMESTAMPTZ   Dependency creation time
+Column Type Description
+
+---
+
+`workspace_id` UUID Workspace context
+`project_id` UUID Project context
+`task_id` UUID Task that has a dependency
+`depends_on_task_id` UUID Task that must be completed first
+`created_at` TIMESTAMPTZ Dependency creation time
 
 **Primary key:** (`task_id`, `depends_on_task_id`).
 
@@ -701,15 +745,17 @@ longer dependency cycles.
 
 Stores named teams within a workspace.
 
-  Column           Type           Description
-  ---------------- -------------- ----------------------
-  `team_id`        UUID           Primary key
-  `workspace_id`   UUID           Owning workspace
-  `name`           VARCHAR(100)   Team name
-  `description`    TEXT           Optional description
-  `created_by`     UUID           Creating user
-  `created_at`     TIMESTAMPTZ    Creation time
-  `updated_at`     TIMESTAMPTZ    Last update time
+Column Type Description
+
+---
+
+`team_id` UUID Primary key
+`workspace_id` UUID Owning workspace
+`name` VARCHAR(100) Team name
+`description` TEXT Optional description
+`created_by` UUID Creating user
+`created_at` TIMESTAMPTZ Creation time
+`updated_at` TIMESTAMPTZ Last update time
 
 Team names are unique within a workspace without case sensitivity.
 (`workspace_id`, `team_id`) is unique for composite references.
@@ -718,12 +764,14 @@ Team names are unique within a workspace without case sensitivity.
 
 Connects workspace members to teams.
 
-  Column           Type          Description
-  ---------------- ------------- -------------------
-  `workspace_id`   UUID          Workspace context
-  `team_id`        UUID          Team
-  `user_id`        UUID          Team member
-  `joined_at`      TIMESTAMPTZ   Membership time
+Column Type Description
+
+---
+
+`workspace_id` UUID Workspace context
+`team_id` UUID Team
+`user_id` UUID Team member
+`joined_at` TIMESTAMPTZ Membership time
 
 **Primary key:** (`team_id`, `user_id`). Composite foreign keys ensure
 the team and member belong to the same workspace.
@@ -732,13 +780,15 @@ the team and member belong to the same workspace.
 
 Stores reusable, workspace-scoped tags.
 
-  Column           Type          Description
-  ---------------- ------------- ----------------------------------
-  `tag_id`         UUID          Primary key
-  `workspace_id`   UUID          Owning workspace
-  `name`           VARCHAR(50)   Tag name
-  `color`          VARCHAR(7)    Hex color, defaults to `#64748b`
-  `created_at`     TIMESTAMPTZ   Creation time
+Column Type Description
+
+---
+
+`tag_id` UUID Primary key
+`workspace_id` UUID Owning workspace
+`name` VARCHAR(50) Tag name
+`color` VARCHAR(7) Hex color, defaults to `#64748b`
+`created_at` TIMESTAMPTZ Creation time
 
 Tag names are unique within a workspace without case sensitivity. The
 color constraint requires a six-digit hexadecimal color in `#RRGGBB`
@@ -748,12 +798,14 @@ format.
 
 Many-to-many relationship between tasks and tags.
 
-  Column           Type          Description
-  ---------------- ------------- ---------------------
-  `workspace_id`   UUID          Workspace context
-  `task_id`        UUID          Tagged task
-  `tag_id`         UUID          Applied tag
-  `created_at`     TIMESTAMPTZ   Tag assignment time
+Column Type Description
+
+---
+
+`workspace_id` UUID Workspace context
+`task_id` UUID Tagged task
+`tag_id` UUID Applied tag
+`created_at` TIMESTAMPTZ Tag assignment time
 
 **Primary key:** (`task_id`, `tag_id`). Composite foreign keys ensure
 the task and tag belong to the same workspace.
@@ -762,12 +814,14 @@ the task and tag belong to the same workspace.
 
 Many-to-many relationship between projects and tags.
 
-  Column           Type          Description
-  ---------------- ------------- ---------------------
-  `workspace_id`   UUID          Workspace context
-  `project_id`     UUID          Tagged project
-  `tag_id`         UUID          Applied tag
-  `created_at`     TIMESTAMPTZ   Tag assignment time
+Column Type Description
+
+---
+
+`workspace_id` UUID Workspace context
+`project_id` UUID Tagged project
+`tag_id` UUID Applied tag
+`created_at` TIMESTAMPTZ Tag assignment time
 
 **Primary key:** (`project_id`, `tag_id`). Composite foreign keys ensure
 the project and tag belong to the same workspace.
@@ -778,17 +832,19 @@ the project and tag belong to the same workspace.
 
 Stores comments and discussion on tasks.
 
-  Column           Type          Description
-  ---------------- ------------- ----------------------------------------
-  `comment_id`     UUID          Primary key
-  `workspace_id`   UUID          Workspace context
-  `task_id`        UUID          Commented task
-  `author_id`      UUID          Workspace member who wrote the comment
-  `content`        TEXT          Comment content
-  `edited_at`      TIMESTAMPTZ   Last edit time; nullable
-  `deleted_at`     TIMESTAMPTZ   Soft-delete time; nullable
-  `created_at`     TIMESTAMPTZ   Creation time
-  `updated_at`     TIMESTAMPTZ   Last update time
+Column Type Description
+
+---
+
+`comment_id` UUID Primary key
+`workspace_id` UUID Workspace context
+`task_id` UUID Commented task
+`author_id` UUID Workspace member who wrote the comment
+`content` TEXT Comment content
+`edited_at` TIMESTAMPTZ Last edit time; nullable
+`deleted_at` TIMESTAMPTZ Soft-delete time; nullable
+`created_at` TIMESTAMPTZ Creation time
+`updated_at` TIMESTAMPTZ Last update time
 
 Comments reference a task and an author in the same workspace. The
 `deleted_at` column allows soft deletion so the application can preserve
@@ -798,17 +854,19 @@ a record instead of immediately removing it.
 
 Stores metadata and storage URLs for files attached to tasks.
 
-  Column            Type           Description
-  ----------------- -------------- ------------------------------------------
-  `attachment_id`   UUID           Primary key
-  `workspace_id`    UUID           Workspace context
-  `task_id`         UUID           Attached task
-  `uploaded_by`     UUID           Workspace member who uploaded the file
-  `file_name`       VARCHAR(255)   Original or display filename
-  `file_url`        TEXT           Object-storage URL or storage key
-  `file_type`       VARCHAR(100)   MIME type; nullable
-  `file_size`       BIGINT         File size in bytes; must be non-negative
-  `created_at`      TIMESTAMPTZ    Upload record creation time
+Column Type Description
+
+---
+
+`attachment_id` UUID Primary key
+`workspace_id` UUID Workspace context
+`task_id` UUID Attached task
+`uploaded_by` UUID Workspace member who uploaded the file
+`file_name` VARCHAR(255) Original or display filename
+`file_url` TEXT Object-storage URL or storage key
+`file_type` VARCHAR(100) MIME type; nullable
+`file_size` BIGINT File size in bytes; must be non-negative
+`created_at` TIMESTAMPTZ Upload record creation time
 
 The database stores file metadata, not binary file contents. File
 uploads will be handled by an object-storage service such as Amazon S3.
@@ -817,37 +875,41 @@ uploads will be handled by an object-storage service such as Amazon S3.
 
 Stores a historical record of actions performed in a workspace.
 
-  -----------------------------------------------------------------------
-  Column                  Type                    Description
-  ----------------------- ----------------------- -----------------------
-  `activity_id`           UUID                    Primary key
+---
 
-  `workspace_id`          UUID                    Workspace where the
-                                                  action occurred
+Column Type Description
 
-  `actor_id`              UUID                    Workspace member who
-                                                  performed the action;
-                                                  nullable
+---
 
-  `entity_type`           VARCHAR(30)             `workspace`, `project`,
-                                                  `task`, or `comment`
+`activity_id` UUID Primary key
 
-  `entity_id`             UUID                    ID of the affected
-                                                  entity
+`workspace_id` UUID Workspace where the
+action occurred
 
-  `action`                VARCHAR(100)            Action name, such as
-                                                  `task.status_changed`
+`actor_id` UUID Workspace member who
+performed the action;
+nullable
 
-  `metadata`              JSONB                   Additional action
-                                                  details; defaults to an
-                                                  empty JSON object
+`entity_type` VARCHAR(30) `workspace`, `project`,
+`task`, or `comment`
 
-  `created_at`            TIMESTAMPTZ             Event time
-  -----------------------------------------------------------------------
+`entity_id` UUID ID of the affected
+entity
+
+`action` VARCHAR(100) Action name, such as
+`task.status_changed`
+
+`metadata` JSONB Additional action
+details; defaults to an
+empty JSON object
+
+`created_at` TIMESTAMPTZ Event time
+
+---
 
 `metadata` can hold action-specific values. For example:
 
-``` json
+```json
 {
   "old_status": "todo",
   "new_status": "in_progress"
@@ -863,40 +925,44 @@ record.
 
 Stores in-app notifications for workspace members.
 
-  -----------------------------------------------------------------------
-  Column                  Type                    Description
-  ----------------------- ----------------------- -----------------------
-  `notification_id`       UUID                    Primary key
+---
 
-  `workspace_id`          UUID                    Workspace context
+Column Type Description
 
-  `recipient_id`          UUID                    Member receiving the
-                                                  notification
+---
 
-  `actor_id`              UUID                    Member who triggered
-                                                  it; nullable
+`notification_id` UUID Primary key
 
-  `task_id`               UUID                    Related task; nullable
+`workspace_id` UUID Workspace context
 
-  `project_id`            UUID                    Related project;
-                                                  nullable
+`recipient_id` UUID Member receiving the
+notification
 
-  `notification_type`     VARCHAR(50)             Machine-readable
-                                                  notification category
+`actor_id` UUID Member who triggered
+it; nullable
 
-  `title`                 VARCHAR(200)            Notification title
+`task_id` UUID Related task; nullable
 
-  `body`                  TEXT                    Optional notification
-                                                  message
+`project_id` UUID Related project;
+nullable
 
-  `metadata`              JSONB                   Additional structured
-                                                  information
+`notification_type` VARCHAR(50) Machine-readable
+notification category
 
-  `read_at`               TIMESTAMPTZ             Read time; `NULL` means
-                                                  unread
+`title` VARCHAR(200) Notification title
 
-  `created_at`            TIMESTAMPTZ             Creation time
-  -----------------------------------------------------------------------
+`body` TEXT Optional notification
+message
+
+`metadata` JSONB Additional structured
+information
+
+`read_at` TIMESTAMPTZ Read time; `NULL` means
+unread
+
+`created_at` TIMESTAMPTZ Creation time
+
+---
 
 A notification can reference a task or a project, but the database
 constraint prevents it from referencing both at the same time. The
@@ -905,21 +971,21 @@ recipient must be a member of the specified workspace.
 Indexes support listing notifications for a recipient and retrieving
 unread notifications efficiently.
 
-------------------------------------------------------------------------
+---
 
 ## Multi-tenancy and data integrity
 
 Orbit uses a **workspace-based multi-tenant model**.
 
--   A user can belong to multiple workspaces.
--   Workspace roles are stored in `workspace_members`, not globally on
-    the user.
--   Projects belong to workspaces.
--   Tasks belong to projects and workspaces.
--   Teams and tags are scoped to workspaces.
--   Comments, attachments, and notifications carry workspace context.
--   Composite foreign keys are used where needed to prevent records from
-    referencing resources in a different workspace.
+- A user can belong to multiple workspaces.
+- Workspace roles are stored in `workspace_members`, not globally on
+  the user.
+- Projects belong to workspaces.
+- Tasks belong to projects and workspaces.
+- Teams and tags are scoped to workspaces.
+- Comments, attachments, and notifications carry workspace context.
+- Composite foreign keys are used where needed to prevent records from
+  referencing resources in a different workspace.
 
 ### Important application-level rule
 
@@ -951,21 +1017,21 @@ Authentication is intended to be handled by the Go API.
 
 Planned flow:
 
--   Registration: validate input, hash the password with Argon2id, and
-    create the user.
--   Login: verify the submitted password against the stored Argon2id
-    hash.
--   Access token: issue a short-lived signed JWT.
--   Refresh token: issue a longer-lived random token and store only its
-    hash in `auth_sessions`.
--   Logout: revoke the relevant session.
--   Email verification and password reset: use random, expiring,
-    single-use tokens whose hashes are stored in their respective
-    tables.
+- Registration: validate input, hash the password with Argon2id, and
+  create the user.
+- Login: verify the submitted password against the stored Argon2id
+  hash.
+- Access token: issue a short-lived signed JWT.
+- Refresh token: issue a longer-lived random token and store only its
+  hash in `auth_sessions`.
+- Logout: revoke the relevant session.
+- Email verification and password reset: use random, expiring,
+  single-use tokens whose hashes are stored in their respective
+  tables.
 
 The current password utility is located at:
 
-``` text
+```text
 internal/security/password.go
 ```
 
@@ -975,19 +1041,21 @@ be implemented.
 
 ## API endpoint
 
-  Method   Endpoint    Purpose                  Current status
-  -------- ----------- ------------------------ ----------------
-  `GET`    `/health`   Basic API health check   Implemented
+Method Endpoint Purpose Current status
+
+---
+
+`GET` `/health` Basic API health check Implemented
 
 Example:
 
-``` bash
+```bash
 curl http://localhost:8080/health
 ```
 
 Expected response:
 
-``` json
+```json
 {
   "status": "success",
   "message": "API is running"
@@ -998,43 +1066,43 @@ Expected response:
 
 Run the API:
 
-``` bash
+```bash
 go run ./cmd/api
 ```
 
 Run all Go package tests from the project root:
 
-``` bash
+```bash
 go test ./...
 ```
 
 Format Go files:
 
-``` bash
+```bash
 gofmt -w .
 ```
 
 Download dependencies:
 
-``` bash
+```bash
 go mod download
 ```
 
 Inspect module dependencies:
 
-``` bash
+```bash
 go mod tidy
 ```
 
 Create a migration:
 
-``` bash
+```bash
 goose -dir ./migrations create descriptive_migration_name sql
 ```
 
 Apply migrations:
 
-``` bash
+```bash
 set -a
 source .env
 set +a
@@ -1043,7 +1111,7 @@ goose -dir ./migrations postgres "$DATABASE_URL" up
 
 Check migration status:
 
-``` bash
+```bash
 set -a
 source .env
 set +a
@@ -1052,47 +1120,47 @@ goose -dir ./migrations postgres "$DATABASE_URL" status
 
 ## Security notes
 
--   Never commit `.env` or real database credentials.
--   Keep `.env.example` limited to placeholder values.
--   Never store plaintext passwords. Use a password-hashing algorithm
-    such as Argon2id.
--   Store hashes of refresh, verification, and reset tokens rather than
-    their raw values.
--   Validate token expiry and single-use status when consuming
-    verification or reset tokens.
--   Verify workspace membership and permissions on every protected
-    operation.
--   Validate uploaded file type and size in the application; do not
-    trust client-provided MIME types.
--   Use HTTPS in deployed environments.
--   Configure CORS with the specific frontend origins that should be
-    allowed.
--   Use parameterized SQL queries with `pgx`; do not concatenate user
-    input into SQL.
--   Avoid logging passwords, tokens, connection strings, or other
-    secrets.
+- Never commit `.env` or real database credentials.
+- Keep `.env.example` limited to placeholder values.
+- Never store plaintext passwords. Use a password-hashing algorithm
+  such as Argon2id.
+- Store hashes of refresh, verification, and reset tokens rather than
+  their raw values.
+- Validate token expiry and single-use status when consuming
+  verification or reset tokens.
+- Verify workspace membership and permissions on every protected
+  operation.
+- Validate uploaded file type and size in the application; do not
+  trust client-provided MIME types.
+- Use HTTPS in deployed environments.
+- Configure CORS with the specific frontend origins that should be
+  allowed.
+- Use parameterized SQL queries with `pgx`; do not concatenate user
+  input into SQL.
+- Avoid logging passwords, tokens, connection strings, or other
+  secrets.
 
 ## Roadmap
 
--   [ ] Complete user repository and user model.
--   [ ] Implement registration with Argon2id.
--   [ ] Implement login and JWT access tokens.
--   [ ] Implement refresh-token rotation and logout.
--   [ ] Add authentication middleware.
--   [ ] Add request validation and centralized error responses.
--   [ ] Implement workspace creation and membership APIs.
--   [ ] Implement workspace invitations.
--   [ ] Implement project and project-member APIs.
--   [ ] Implement task CRUD, assignment, ordering, and dependencies.
--   [ ] Implement teams and tags.
--   [ ] Implement comments and attachment metadata APIs.
--   [ ] Implement activity feed and notifications.
--   [ ] Add pagination, filtering, search, and sorting.
--   [ ] Add rate limiting and security hardening.
--   [ ] Add unit and integration tests.
--   [ ] Add deployment configuration and observability.
+- [x] Complete user repository and user model.
+- [ ] Implement registration with Argon2id.
+- [ ] Implement login and JWT access tokens.
+- [ ] Implement refresh-token rotation and logout.
+- [ ] Add authentication middleware.
+- [ ] Add request validation and centralized error responses.
+- [ ] Implement workspace creation and membership APIs.
+- [ ] Implement workspace invitations.
+- [ ] Implement project and project-member APIs.
+- [ ] Implement task CRUD, assignment, ordering, and dependencies.
+- [ ] Implement teams and tags.
+- [ ] Implement comments and attachment metadata APIs.
+- [ ] Implement activity feed and notifications.
+- [ ] Add pagination, filtering, search, and sorting.
+- [ ] Add rate limiting and security hardening.
+- [ ] Add unit and integration tests.
+- [ ] Add deployment configuration and observability.
 
-------------------------------------------------------------------------
+---
 
 ## License
 
