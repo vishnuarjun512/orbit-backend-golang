@@ -21,9 +21,9 @@ func MainRouter(db *pgxpool.Pool) *gin.Engine {
 		})
 	})
 
-	api:= router.Group("/api")
+	api := router.Group("/api")
 
-	user.UserRoutes(api,db)
+	user.UserRoutes(api, db)
 
 	return router
 }
