@@ -10,10 +10,10 @@ SQL migrations. Authentication is handled by the Go backend; Supabase is
 currently used as the hosted PostgreSQL provider, not as the
 authentication provider.
 
-> **Project status:** Backend foundation and initial PostgreSQL schema
-> are in place. The API currently includes a health-check endpoint and a
-> PostgreSQL connection. Authentication and the remaining application
-> APIs are under development.
+> **Project status:** The backend foundation, PostgreSQL schema, user
+> registration and login, JWT-protected workspace CRUD, and health-check
+> endpoint are implemented. Other application APIs and refresh-token
+> flows are under development.
 
 ---
 
@@ -37,7 +37,7 @@ authentication provider.
 - [Multi-tenancy and data
   integrity](#multi-tenancy-and-data-integrity)
 - [Authentication design](#authentication-design)
-- [API endpoint](#api-endpoint)
+- [API reference](#api-reference)
 - [Development commands](#development-commands)
 - [Security notes](#security-notes)
 - [Roadmap](#roadmap)
@@ -92,24 +92,25 @@ ORM.
 - Environment-based application configuration.
 - PostgreSQL connection using `pgxpool`.
 - Database connection health check during startup.
-- `/health` endpoint.
+- Health-check route.
 - Goose migration workflow.
 - Initial relational database schema for users, authentication,
   workspaces, projects, tasks, teams, tags, comments, attachments,
   activity logs, and notifications.
 - Argon2id password-hashing utility (initial implementation).
+- User registration and login with JWT access tokens.
+- JWT middleware for protected routes.
+- Workspace create, read, update, and delete operations.
 
 ### In progress / planned
 
-- User registration and login.
-- Access-token and refresh-token authentication.
-- Authentication and authorization middleware.
-- Workspace creation, membership, and invitations.
+- Refresh-token authentication and session management.
+- Workspace invitations and member management.
 - Project and task CRUD APIs.
 - Team and tag management.
 - Comments and attachments APIs.
 - Activity feed and notifications APIs.
-- Input validation, centralized error handling, and API tests.
+- Broader input validation, centralized error handling, and API tests.
 - Email verification and password reset flows.
 
 ## Project structure
@@ -247,20 +248,8 @@ go run ./cmd/api
 The default development server listens on port `8080`, unless overridden
 by `APP_PORT`.
 
-The health endpoint is:
-
-```http
-GET /health
-```
-
-Expected response:
-
-```json
-{
-  "status": "success",
-  "message": "API is running"
-}
-```
+See the [API reference](./API.md) for available routes and their request
+and response formats.
 
 ## Database and migrations
 
@@ -1013,54 +1002,27 @@ those relationships.
 
 ## Authentication design
 
-Authentication is intended to be handled by the Go API.
+Authentication is handled by the Go API. Registration hashes passwords
+with Argon2id. Login verifies the hash, creates a short-lived signed JWT,
+and sets it in the `orbit_access_token` HttpOnly cookie. Protected
+workspace routes accept that cookie or an `Authorization: Bearer`
+header. Refresh-token rotation, logout, email verification, and password
+reset flows are planned but not yet implemented.
 
-Planned flow:
-
-- Registration: validate input, hash the password with Argon2id, and
-  create the user.
-- Login: verify the submitted password against the stored Argon2id
-  hash.
-- Access token: issue a short-lived signed JWT.
-- Refresh token: issue a longer-lived random token and store only its
-  hash in `auth_sessions`.
-- Logout: revoke the relevant session.
-- Email verification and password reset: use random, expiring,
-  single-use tokens whose hashes are stored in their respective
-  tables.
-
-The current password utility is located at:
+The password utility is located at:
 
 ```text
 internal/security/password.go
 ```
 
-It provides password hashing and verification helpers. Authentication
-handlers, services, token issuance, and session management are still to
-be implemented.
+It provides password hashing and verification helpers. See the
+[API reference](./API.md) for current request and response formats.
 
-## API endpoint
+## API reference
 
-Method Endpoint Purpose Current status
-
----
-
-`GET` `/health` Basic API health check Implemented
-
-Example:
-
-```bash
-curl http://localhost:8080/health
-```
-
-Expected response:
-
-```json
-{
-  "status": "success",
-  "message": "API is running"
-}
-```
+The API endpoints, authentication requirements, request fields, and
+response formats are documented in the separate
+[API reference](./API.md).
 
 ## Development commands
 
@@ -1143,12 +1105,12 @@ goose -dir ./migrations postgres "$DATABASE_URL" status
 ## Roadmap
 
 - [x] Complete user repository and user model.
-- [ ] Implement registration with Argon2id.
-- [ ] Implement login and JWT access tokens.
+- [x] Implement registration with Argon2id.
+- [x] Implement login and JWT access tokens.
 - [ ] Implement refresh-token rotation and logout.
-- [ ] Add authentication middleware.
+- [x] Add authentication middleware.
 - [ ] Add request validation and centralized error responses.
-- [ ] Implement workspace creation and membership APIs.
+- [x] Implement workspace CRUD and creator membership.
 - [ ] Implement workspace invitations.
 - [ ] Implement project and project-member APIs.
 - [ ] Implement task CRUD, assignment, ordering, and dependencies.
