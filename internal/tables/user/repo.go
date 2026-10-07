@@ -2,9 +2,11 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -19,39 +21,30 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 }
 
 // Create inserts a new user into PostgreSQL.
-func (r *Repository) Create(ctx context.Context, user *User) error {
+func (r *Repository) CreateUser(ctx context.Context, user *User) error {
 	query := `
-        INSERT INTO users (
-            email,
-            username,
-            full_name,
-            password_hash
-        )
-        VALUES ($1, $2, $3, $4)
-        RETURNING
-            user_id,
-            avatar_url,
-            status,
-            created_at,
-            updated_at
-    `
+		INSERT INTO users (
+			email,
+			password_hash
+		)
+		VALUES ($1, $2)
+	`
 
-	err := r.db.QueryRow(
+	_, err := r.db.Exec(
 		ctx,
 		query,
 		user.Email,
-		user.Username,
-		user.FullName,
 		user.PasswordHash,
-	).Scan(
-		&user.UserID,
-		&user.AvatarURL,
-		&user.Status,
-		&user.CreatedAt,
-		&user.UpdatedAt,
 	)
 
 	if err != nil {
+		// PostgreSQL error code 23505 = unique violation.
+		var pgErr *pgconn.PgError
+
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return ErrEmailAlreadyExists
+		}
+
 		return fmt.Errorf("create user: %w", err)
 	}
 
@@ -59,23 +52,23 @@ func (r *Repository) Create(ctx context.Context, user *User) error {
 }
 
 // GetByEmail retrieves a user using their email address.
-func (r *Repository) GetByEmail(ctx context.Context, email string) (*User, error) {
+func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	query := `
-        SELECT
-            user_id,
-            email,
-            username,
-            full_name,
-            password_hash,
-            avatar_url,
-            email_verified_at,
-            status,
-            created_at,
-            updated_at
-        FROM users
-        WHERE LOWER(email) = LOWER($1)
-        LIMIT 1
-    `
+		SELECT
+			user_id,
+			email,
+			username,
+			full_name,
+			password_hash,
+			avatar_url,
+			email_verified_at,
+			status,
+			created_at,
+			updated_at
+		FROM users
+		WHERE LOWER(email) = LOWER($1)
+		LIMIT 1
+	`
 
 	user := &User{}
 
@@ -93,38 +86,38 @@ func (r *Repository) GetByEmail(ctx context.Context, email string) (*User, error
 	)
 
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 
-		return nil, fmt.Errorf("get user by email: %w", err)
+		return nil, fmt.Errorf("Get user by Email: %w", err)
 	}
 
 	return user, nil
 }
 
 // GetByUsername retrieves a user using their username.
-func (r *Repository) GetByUsername(ctx context.Context, username string) (*User, error) {
+func (r *Repository) GetUserByID(ctx context.Context, id string) (*User, error) {
 	query := `
-        SELECT
-            user_id,
-            email,
-            username,
-            full_name,
-            password_hash,
-            avatar_url,
-            email_verified_at,
-            status,
-            created_at,
-            updated_at
-        FROM users
-        WHERE LOWER(username) = LOWER($1)
-        LIMIT 1
-    `
+		SELECT
+			user_id,
+			email,
+			username,
+			full_name,
+			password_hash,
+			avatar_url,
+			email_verified_at,
+			status,
+			created_at,
+			updated_at
+		FROM users
+		WHERE id = $1
+		LIMIT 1
+	`
 
 	user := &User{}
 
-	err := r.db.QueryRow(ctx, query, username).Scan(
+	err := r.db.QueryRow(ctx, query, id).Scan(
 		&user.UserID,
 		&user.Email,
 		&user.Username,
@@ -138,11 +131,11 @@ func (r *Repository) GetByUsername(ctx context.Context, username string) (*User,
 	)
 
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
 
-		return nil, fmt.Errorf("get user by username: %w", err)
+		return nil, fmt.Errorf("Get user by ID: %w", err)
 	}
 
 	return user, nil

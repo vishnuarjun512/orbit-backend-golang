@@ -9,8 +9,8 @@ CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
     email VARCHAR(255) NOT NULL,
-    username VARCHAR(50) NOT NULL,
-    full_name VARCHAR(100) NOT NULL,
+    username VARCHAR(50) UNIQUE,
+    full_name VARCHAR(100),
 
     password_hash TEXT NOT NULL,
 

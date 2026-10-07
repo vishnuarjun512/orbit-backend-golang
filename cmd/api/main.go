@@ -8,12 +8,15 @@ import (
 	"orbit-backend-golang/internal/config"
 	"orbit-backend-golang/internal/database"
 	"orbit-backend-golang/internal/routes"
+	"orbit-backend-golang/internal/security"
 )
 
 func main() {
 
 	// Load application configuration
 	cfg := config.LoadConfig()
+
+	jwtService := security.NewJWTService(cfg.JWT_SECRET)
 
 	// Connect to PostgreSQL
 	db, err := database.ConnectPostgres(cfg.DatabaseURL)
@@ -32,7 +35,7 @@ func main() {
 		gin.SetMode(gin.DebugMode)
 	}
 
-	router := routes.MainRouter(db)
+	router := routes.MainRouter(db, jwtService)
 
 	if err := router.SetTrustedProxies(nil); err != nil {
 		log.Fatal(err)

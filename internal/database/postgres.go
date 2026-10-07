@@ -9,6 +9,7 @@ import (
 )
 
 func ConnectPostgres(url string) (*pgxpool.Pool, error) {
+
 	config, err := pgxpool.ParseConfig(url)
 
 	if err != nil {
@@ -24,6 +25,7 @@ func ConnectPostgres(url string) (*pgxpool.Pool, error) {
 		context.Background(),
 		10*time.Second,
 	)
+
 	defer cancel()
 
 	db, err := pgxpool.NewWithConfig(ctx, config)

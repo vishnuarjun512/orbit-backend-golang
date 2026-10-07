@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,41 +21,33 @@ func NewHandler(service *Service) *Handler {
 func (h *Handler) Register(c *gin.Context) {
 	var req RegisterRequest
 
-	// Parse and validate incoming JSON.
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
+			"error":   true,
 			"message": "Invalid registration details",
 		})
 		return
 	}
 
-	// Execute registration business logic.
-	user, err := h.service.Register(c.Request.Context(), req)
+	err := h.service.Register(c.Request.Context(), req)
 
 	if err != nil {
 		switch {
 		case errors.Is(err, ErrEmailAlreadyExists):
 			c.JSON(http.StatusConflict, gin.H{
-				"status":  "error",
+				"error":   true,
 				"message": "Email is already registered",
-			})
-
-		case errors.Is(err, ErrUsernameAlreadyExists):
-			c.JSON(http.StatusConflict, gin.H{
-				"status":  "error",
-				"message": "Username is already taken",
 			})
 
 		case errors.Is(err, ErrInvalidInput):
 			c.JSON(http.StatusBadRequest, gin.H{
-				"status":  "error",
+				"error":   true,
 				"message": "Invalid registration details",
 			})
 
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"status":  "error",
+				"error":   true,
 				"message": "Something went wrong",
 			})
 		}
@@ -62,19 +55,69 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	// Build a public response without exposing sensitive fields.
-	response := RegisterResponse{
-		UserID:    user.UserID,
-		Email:     user.Email,
-		Username:  user.Username,
-		FullName:  user.FullName,
-		AvatarURL: user.AvatarURL,
-		CreatedAt: user.CreatedAt,
+	c.JSON(http.StatusCreated, gin.H{
+		"error":   false,
+		"message": "Registration successful",
+	})
+}
+
+func (h *Handler) Login(c *gin.Context) {
+	var req LoginRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   true,
+			"message": "Invalid Login Details",
+		})
 	}
 
+	loginResponse, err := h.service.SignIn(c.Request.Context(), req)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrInvalidPassword):
+			c.JSON(http.StatusConflict, gin.H{
+				"error":   true,
+				"message": "Invalid Credentials",
+			})
+
+		case errors.Is(err, ErrUserNotRegistered):
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":   true,
+				"message": "User not found",
+			})
+
+		case errors.Is(err, ErrTokenGenerationError):
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":   true,
+				"message": "Token generation failed",
+			})
+
+		default:
+			fmt.Print(err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   true,
+				"message": "Something went wrong",
+			})
+		}
+
+		return
+	}
+
+	c.SetCookie(
+		"orbit_access_token",
+		loginResponse.AccessToken,
+		900, // 15 minutes
+		"/",
+		"",
+		true, // Secure
+		true, // HttpOnly
+	)
+
 	c.JSON(http.StatusCreated, gin.H{
-		"status":  "success",
-		"message": "Account created successfully",
-		"data":    response,
+		"error":   false,
+		"message": "Login successful",
+		"user":    loginResponse.User,
 	})
+
 }
