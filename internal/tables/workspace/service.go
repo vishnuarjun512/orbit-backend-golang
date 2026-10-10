@@ -32,14 +32,9 @@ func (s *WorkSpaceService) CreateWorkspace(
 		return nil, fmt.Errorf("%w: name must be between 3 and 100 characters", ErrInvalidWorkspaceInput)
 	}
 
-	slug := req.Slug
-	if strings.TrimSpace(slug) == "" {
-		slug = slugify(name)
-	} else {
-		slug = slugify(slug)
-	}
+	slug := slugify(name)
 	if slug == "" || len([]rune(slug)) > 100 {
-		return nil, fmt.Errorf("%w: slug must contain 1 to 100 characters", ErrInvalidWorkspaceInput)
+		return nil, fmt.Errorf("%w: name must produce a slug containing 1 to 100 characters", ErrInvalidWorkspaceInput)
 	}
 
 	return s.repository.CreateWorkspaceRepository(ctx, name, slug, req.Description, userID)

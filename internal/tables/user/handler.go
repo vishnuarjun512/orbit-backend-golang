@@ -51,7 +51,6 @@ func (h *Handler) Register(c *gin.Context) {
 				"message": "Something went wrong",
 			})
 		}
-
 		return
 	}
 

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -8,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"orbit-backend-golang/internal/security"
+	"orbit-backend-golang/internal/tables/projects"
 	"orbit-backend-golang/internal/tables/user"
 	"orbit-backend-golang/internal/tables/workspace"
 )
@@ -16,6 +18,11 @@ func MainRouter(db *pgxpool.Pool, jwtService *security.JWTService) *gin.Engine {
 	router := gin.New()
 
 	router.Use(gin.Recovery())
+
+	router.Use(func(c *gin.Context) {
+		log.Println("REQUEST:", c.Request.Method, c.Request.URL.String())
+		c.Next()
+	})
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
@@ -49,6 +56,7 @@ func MainRouter(db *pgxpool.Pool, jwtService *security.JWTService) *gin.Engine {
 
 	user.UserRoutes(api, db, jwtService)
 	workspace.WorkspaceRoutes(api, db, jwtService)
+	projects.ProjectRoutes(api, db, jwtService)
 
 	return router
 }

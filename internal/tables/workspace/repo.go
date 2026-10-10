@@ -38,19 +38,23 @@ func (r *WorkspaceRepository) CreateWorkspaceRepository(
 	`
 
 	workspace, err := scanWorkspace(tx.QueryRow(ctx, createQuery, name, slug, description, createdBy))
+
 	if err != nil {
 		return nil, translateWorkspaceError("create workspace", err)
 	}
+
 	const memberQuery = `
 		INSERT INTO workspace_members (workspace_id, user_id, role, status)
 		VALUES ($1, $2, 'owner', 'active')
 	`
+
 	if _, err := tx.Exec(ctx, memberQuery, workspace.WorkSpaceID, createdBy); err != nil {
 		return nil, fmt.Errorf("add workspace owner membership: %w", err)
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return nil, fmt.Errorf("commit create workspace transaction: %w", err)
 	}
+
 	return workspace, nil
 }
 

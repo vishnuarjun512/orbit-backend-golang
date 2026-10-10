@@ -132,7 +132,7 @@ Other responses:
 
 All workspace endpoints require JWT authentication.
 
-### `POST /api/workspace/`
+### `POST /api/workspace`
 
 Create a workspace. There are no path parameters or query parameters.
 The authenticated user is recorded as its creator and added as an active
@@ -143,18 +143,16 @@ Request body:
 | Field | Type | Required | Constraints |
 |---|---|---:|---|
 | `name` | string | Yes | 3–100 characters |
-| `slug` | string | No | Up to 100 characters; generated from `name` if omitted or blank |
 | `description` | string | No | Optional description |
 
-The slug is lowercased, with runs of non-letter/digit characters
-normalized to hyphens.
+The slug is generated from `name`, lowercased, with runs of
+non-letter/digit characters normalized to hyphens.
 
 Example:
 
 ```json
 {
   "name": "Product Team",
-  "slug": "product-team",
   "description": "Workspace for product planning"
 }
 ```
@@ -181,7 +179,7 @@ Other responses include `400 Bad Request` for invalid fields,
 globally unique slug is taken, and `500 Internal Server Error` for an
 unexpected server error.
 
-### `GET /api/workspace/`
+### `GET /api/workspace`
 
 List workspaces created by the authenticated user. No request body or
 path parameters.
@@ -193,7 +191,7 @@ Query parameters:
 | `page` | integer | No | 1-based; default `1` |
 | `limit` | integer | No | 1–100; default `20` |
 
-Example: `GET /api/workspace/?page=1&limit=20`
+Example: `GET /api/workspace?page=1&limit=20`
 
 Success response: `200 OK`
 

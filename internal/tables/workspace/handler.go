@@ -31,6 +31,7 @@ func (h *WorkspaceHandler) createWorkspace(c *gin.Context) {
 		h.respondWorkspaceError(c, err)
 		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{
 		"error":     false,
 		"workspace": workspace,
@@ -60,6 +61,7 @@ func (h *WorkspaceHandler) getWorkspaces(c *gin.Context) {
 		"error":      false,
 		"workspaces": workspaces,
 		"pagination": gin.H{"page": page, "limit": limit},
+		"message":    "Workspaces sent",
 	})
 }
 
@@ -86,6 +88,7 @@ func (h *WorkspaceHandler) updateWorkspace(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": "Invalid workspace details"})
 		return
 	}
+
 	workspace, err := h.service.UpdateWorkspace(c.Request.Context(), id, c.GetString("userID"), req)
 	if err != nil {
 		h.respondWorkspaceError(c, err)

@@ -72,10 +72,12 @@ func (s *Service) SignIn(ctx context.Context, req LoginRequest) (*LoginResponse,
 	user, err := s.repo.GetUserByEmail(ctx, email)
 
 	if err != nil {
+		fmt.Print("User not found")
 		return nil, err
 	}
 
 	if user == nil {
+		fmt.Print("User not Registered")
 		return nil, ErrUserNotRegistered
 	}
 

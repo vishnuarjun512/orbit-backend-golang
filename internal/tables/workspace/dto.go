@@ -4,7 +4,6 @@ import "time"
 
 type WorkSpaceCreateRequest struct {
 	Name        string  `json:"name" binding:"required,min=3,max=100"`
-	Slug        string  `json:"slug" binding:"omitempty,max=100"`
 	Description *string `json:"description"`
 }
 
