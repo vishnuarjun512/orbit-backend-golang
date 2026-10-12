@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"orbit-backend-golang/internal/config"
 
 	"github.com/gin-gonic/gin"
 )
@@ -106,7 +107,17 @@ func (h *Handler) Login(c *gin.Context) {
 	c.SetCookie(
 		"orbit_access_token",
 		loginResponse.AccessToken,
-		900, // 15 minutes
+		config.LoadConfig().JWT_ACCESS_TOKEN_EXPIRY_IN_MINUTES*60, // 15 minutes
+		"/",
+		"",
+		true, // Secure
+		true, // HttpOnly
+	)
+
+	c.SetCookie(
+		"orbit_refresh_token",
+		loginResponse.RefreshToken,
+		config.LoadConfig().JWT_REFRESH_TOKEN_EXPIRY_IN_MINUTES*60, // 15 minutes
 		"/",
 		"",
 		true, // Secure
@@ -117,6 +128,62 @@ func (h *Handler) Login(c *gin.Context) {
 		"error":   false,
 		"message": "Login successful",
 		"user":    loginResponse.User,
+	})
+
+}
+
+func (h *Handler) Refresh(c *gin.Context) {
+
+	refreshToken, err := c.Cookie("orbit_refresh_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   true,
+			"message": "Refresh Token Extraction Error",
+		})
+		return
+	}
+
+	token := refreshToken
+
+	if token == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   true,
+			"message": "Refresh Token Empty",
+		})
+		return
+	}
+
+	userID, err := h.service.jwtService.ValidateAccessToken(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   true,
+			"message": "Refresh Token Validation Error",
+		})
+		return
+	}
+
+	accessToken, err := h.service.jwtService.CreateToken(userID, config.LoadConfig().JWT_ACCESS_TOKEN_EXPIRY_IN_MINUTES)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   true,
+			"message": "New Access Token Creation Error",
+		})
+		return
+	}
+
+	c.SetCookie(
+		"orbit_access_token",
+		accessToken,
+		config.LoadConfig().JWT_ACCESS_TOKEN_EXPIRY_IN_MINUTES*60, // 15 minutes
+		"/",
+		"",
+		true, // Secure
+		true, // HttpOnly
+	)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"error":   false,
+		"message": "Refreshed Access token successful",
 	})
 
 }

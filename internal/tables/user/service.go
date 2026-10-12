@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"orbit-backend-golang/internal/config"
 	"orbit-backend-golang/internal/security"
 )
 
@@ -91,7 +92,8 @@ func (s *Service) SignIn(ctx context.Context, req LoginRequest) (*LoginResponse,
 		return nil, ErrInvalidPassword
 	}
 
-	accessToken, err := s.jwtService.CreateToken(user.UserID)
+	accessToken, err := s.jwtService.CreateToken(user.UserID, config.LoadConfig().JWT_ACCESS_TOKEN_EXPIRY_IN_MINUTES)
+	refreshToken, err := s.jwtService.CreateToken(user.UserID, config.LoadConfig().JWT_REFRESH_TOKEN_EXPIRY_IN_MINUTES)
 
 	if err != nil {
 		fmt.Print(err)
@@ -107,5 +109,5 @@ func (s *Service) SignIn(ctx context.Context, req LoginRequest) (*LoginResponse,
 		CreatedAt: user.CreatedAt,
 	}
 
-	return &LoginResponse{safeUser, accessToken}, nil
+	return &LoginResponse{safeUser, accessToken, refreshToken}, nil
 }

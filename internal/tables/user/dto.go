@@ -15,8 +15,9 @@ type LoginRequest struct {
 
 // RegisterResponse represents the public user data returned after registration.
 type LoginResponse struct {
-	User        SafeUser `json:"user"`
-	AccessToken string   `json:"access_token"`
+	User         SafeUser `json:"user"`
+	AccessToken  string   `json:"access_token"`
+	RefreshToken string   `json:"refresh_token"`
 }
 
 type SafeUser struct {

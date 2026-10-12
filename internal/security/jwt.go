@@ -22,14 +22,15 @@ func NewJWTService(secret string) *JWTService {
 	}
 }
 
-func (j *JWTService) CreateToken(userID string) (string, error) {
+func (j *JWTService) CreateToken(userID string, timeInMinutes int) (string, error) {
 	now := time.Now()
 
+	till := now.Add(time.Duration(timeInMinutes) * time.Minute)
 	claims := Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(15 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(till),
 		},
 	}
 

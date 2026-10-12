@@ -17,6 +17,8 @@ func ProjectRoutes(api *gin.RouterGroup, db *pgxpool.Pool, jwt *security.JWTServ
 
 	projects.Use(middleware.AuthMiddleware(jwt))
 
-	projects.POST("", handler.createProjectHandler)
-	projects.GET("/:projectID", handler.getProjectByIdHandler)
+	projects.POST("", handler.createProject)
+	projects.GET("/:workspaceID", handler.getProjectsByWorkspaceID)
+	// projects.GET("/:projectID", handler.getProjectById)
+	projects.DELETE("/:projectID", handler.DeleteProject)
 }

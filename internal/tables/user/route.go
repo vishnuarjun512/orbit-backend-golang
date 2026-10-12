@@ -17,5 +17,6 @@ func UserRoutes(router *gin.RouterGroup, db *pgxpool.Pool, jwtService *security.
 	{
 		auth.POST("/register", handler.Register)
 		auth.POST("/login", handler.Login)
+		auth.POST("/refresh", handler.Refresh)
 	}
 }

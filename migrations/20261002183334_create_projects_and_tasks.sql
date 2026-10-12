@@ -14,9 +14,9 @@ CREATE TABLE projects (
 
     name VARCHAR(150) NOT NULL,
 
-    project_key VARCHAR(20) NOT NULL,
-
     description TEXT,
+
+    project_color TEXT,
 
     status VARCHAR(30) NOT NULL DEFAULT 'active',
 
