@@ -41,9 +41,6 @@ CREATE TABLE projects (
     CONSTRAINT projects_dates_check
         CHECK (due_date IS NULL OR start_date IS NULL OR due_date >= start_date),
 
-    CONSTRAINT projects_workspace_key_unique
-        UNIQUE (workspace_id, project_key),
-
     -- Required for composite foreign keys from other tables.
     CONSTRAINT projects_workspace_project_unique
         UNIQUE (workspace_id, project_id)
@@ -116,17 +113,13 @@ CREATE TABLE tasks (
 
     priority VARCHAR(20) NOT NULL DEFAULT 'medium',
 
-    assignee_id UUID,
-
     created_by UUID NOT NULL,
 
-    start_date TIMESTAMPTZ,
+    start_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     due_date TIMESTAMPTZ,
 
-    completed_at TIMESTAMPTZ,
-
-    position BIGINT NOT NULL DEFAULT 0,
+    completed_at TIMESTAMPTZ DEFAULT NULL,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
