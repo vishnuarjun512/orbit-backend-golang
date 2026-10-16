@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"orbit-backend-golang/internal/middleware"
 	"orbit-backend-golang/internal/security"
 
 	"github.com/gin-gonic/gin"
@@ -14,8 +15,11 @@ func TaskRoutes(api *gin.RouterGroup, db *pgxpool.Pool, jwtService *security.JWT
 
 	tasks := api.Group("/tasks")
 
+	tasks.Use(middleware.AuthMiddleware(jwtService))
+
+	tasks.GET("/:projectID", handler.GetTasksByProjectID)
+	tasks.GET("", handler.GetTasks)
 	tasks.POST("", handler.CreateTaskHandler)
 	tasks.DELETE("/:taskID")
-	tasks.GET("/:taskID")
-	tasks.GET("/workspace/:workspaceID ")
+	// tasks.GET("/:workspaceID")
 }

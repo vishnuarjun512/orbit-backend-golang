@@ -74,6 +74,32 @@ func (repo *TaskRepository) GetTasksByProjectID(ctx context.Context, project_id 
 	return &tasks, err
 }
 
+func (repo *TaskRepository) GetTasksByWorkspaceID(ctx context.Context, workspace_id string) (*[]Task, error) {
+	query := `
+		SELECT
+			task_id, workspace_id, project_id, created_by, parent_task_id, priority, status, title, description, start_date, due_date, completed_at, created_at, updated_at
+		FROM tasks
+		WHERE workspace_id = $1
+	`
+
+	tasks := make([]Task, 0)
+	rows, err := repo.db.Query(ctx, query, workspace_id)
+	if err != nil {
+		return nil, fmt.Errorf("List Tasks with Workspace ID: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		task, err := scanTasks(rows)
+		if err != nil {
+			return nil, fmt.Errorf("Scan Task: %w", err)
+		}
+		tasks = append(tasks, *task)
+	}
+
+	return &tasks, err
+}
+
 type rowScanner interface {
 	Scan(dest ...any) error
 }

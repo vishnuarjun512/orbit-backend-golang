@@ -30,3 +30,7 @@ func (s *TaskService) CreateTaskService(ctx context.Context, userID string, req 
 	task, err := s.repository.GetTaskByID(ctx, task_id)
 	return task, err
 }
+
+func (s *TaskService) GetTasksByWorkspaceID(ctx context.Context, workspaceID string) (*[]Task, error) {
+	return s.repository.GetTasksByWorkspaceID(ctx, workspaceID)
+}

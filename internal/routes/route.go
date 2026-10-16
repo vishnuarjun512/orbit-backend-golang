@@ -9,7 +9,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"orbit-backend-golang/internal/security"
+	"orbit-backend-golang/internal/tables/home"
 	"orbit-backend-golang/internal/tables/projects"
+	"orbit-backend-golang/internal/tables/tasks"
 	"orbit-backend-golang/internal/tables/user"
 	"orbit-backend-golang/internal/tables/workspace"
 )
@@ -57,6 +59,7 @@ func MainRouter(db *pgxpool.Pool, jwtService *security.JWTService) *gin.Engine {
 	user.UserRoutes(api, db, jwtService)
 	workspace.WorkspaceRoutes(api, db, jwtService)
 	projects.ProjectRoutes(api, db, jwtService)
-
+	tasks.TaskRoutes(api, db, jwtService)
+	home.HomeRoutes(api, db, jwtService)
 	return router
 }
