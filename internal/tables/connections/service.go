@@ -32,8 +32,16 @@ func (s *ConnectionService) GetConnectionRequestService(ctx context.Context, sen
 	return s.repo.GetConnectionRequest(ctx, senderID, receiverID)
 }
 
-func (s *ConnectionService) GetAllConnectionRequestService(ctx context.Context, senderID, receiverID string) (*Connection_Request, error) {
+func (s *ConnectionService) GetConnectionRequest(ctx context.Context, senderID, receiverID string) (*Connection_Request, error) {
 	return s.repo.GetConnectionRequest(ctx, senderID, receiverID)
+}
+
+func (s *ConnectionService) GetReceivedRequestsService(ctx context.Context, receiverID string) (*[]Connection_Request, error) {
+	return s.repo.GetReceivedRequests(ctx, receiverID)
+}
+
+func (s *ConnectionService) GetSentRequestsService(ctx context.Context, senderID string) (*[]Connection_Request, error) {
+	return s.repo.GetSentRequests(ctx, senderID)
 }
 
 func (s *ConnectionService) DeleteConnectionRequestService(ctx context.Context, senderID, receiverID string) error {
@@ -62,7 +70,7 @@ func (s *ConnectionService) AcceptConnectionRequestService(ctx context.Context, 
 		return nil, cerr
 	}
 
-	crerr := s.repo.DeleteConnectionRequestByID(ctx, connectionrequest.Connection_Request_ID)
+	crerr := s.repo.DeleteConnectionRequestByID(ctx, connectionrequest.ConnectionRequestID)
 	if crerr != nil {
 		return nil, crerr
 	}
@@ -78,10 +86,14 @@ func (s *ConnectionService) RejectConnectionRequestService(ctx context.Context, 
 		return err
 	}
 
-	crerr := s.repo.DeleteConnectionRequestByID(ctx, connectionrequest.Connection_Request_ID)
+	crerr := s.repo.DeleteConnectionRequestByID(ctx, connectionrequest.ConnectionRequestID)
 	if crerr != nil {
 		return crerr
 	}
 
 	return nil
+}
+
+func (s *ConnectionService) GetAllConnectionsService(ctx context.Context, userID string) (*[]ConnectionResponse, error) {
+	return s.repo.GetAllConnections(ctx, userID)
 }

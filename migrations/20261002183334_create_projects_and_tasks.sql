@@ -136,10 +136,6 @@ CREATE TABLE tasks (
         REFERENCES projects(workspace_id, project_id)
         ON DELETE CASCADE,
 
-    CONSTRAINT tasks_assignee_fk
-        FOREIGN KEY (workspace_id, assignee_id)
-        REFERENCES workspace_members(workspace_id, user_id)
-        ON DELETE SET NULL (assignee_id),
 
     CONSTRAINT tasks_creator_fk
         FOREIGN KEY (workspace_id, created_by)
@@ -162,9 +158,6 @@ ON tasks(workspace_id);
 
 CREATE INDEX tasks_project_id_idx
 ON tasks(project_id);
-
-CREATE INDEX tasks_assignee_id_idx
-ON tasks(assignee_id);
 
 CREATE INDEX tasks_status_idx
 ON tasks(workspace_id, project_id, status);
