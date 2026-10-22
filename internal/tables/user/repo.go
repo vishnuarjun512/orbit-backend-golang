@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -22,20 +23,12 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 
 // Create inserts a new user into PostgreSQL.
 func (r *Repository) CreateUser(ctx context.Context, user *User) error {
-	query := `
-		INSERT INTO users (
-			email,
-			password_hash
-		)
-		VALUES ($1, $2)
-	`
-
-	_, err := r.db.Exec(
-		ctx,
-		query,
-		user.Email,
-		user.PasswordHash,
-	)
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("begin create user: %w", err)
+	}
+	defer tx.Rollback(ctx)
+	err = tx.QueryRow(ctx, `INSERT INTO users (public_id, email, password_hash) VALUES ('ORB-' || UPPER(ENCODE(gen_random_bytes(8), 'hex')), $1, $2) RETURNING user_id, public_id`, user.Email, user.PasswordHash).Scan(&user.UserID, &user.PublicID)
 
 	if err != nil {
 		// PostgreSQL error code 23505 = unique violation.
@@ -48,6 +41,19 @@ func (r *Repository) CreateUser(ctx context.Context, user *User) error {
 		return fmt.Errorf("create user: %w", err)
 	}
 
+	name := user.Email
+	if at := strings.IndexByte(name, '@'); at >= 0 {
+		name = name[:at]
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO user_profiles (user_id, display_name) VALUES ($1, $2)`, user.UserID, name); err != nil {
+		return fmt.Errorf("create user profile: %w", err)
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO user_preferences (user_id) VALUES ($1)`, user.UserID); err != nil {
+		return fmt.Errorf("create user preferences: %w", err)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("commit create user: %w", err)
+	}
 	return nil
 }
 
@@ -56,6 +62,7 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, e
 	query := `
 		SELECT
 			user_id,
+			public_id,
 			email,
 			username,
 			full_name,
@@ -74,6 +81,7 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, e
 
 	err := r.db.QueryRow(ctx, query, email).Scan(
 		&user.UserID,
+		&user.PublicID,
 		&user.Email,
 		&user.Username,
 		&user.FullName,
@@ -101,6 +109,7 @@ func (r *Repository) GetUserByID(ctx context.Context, id string) (*User, error) 
 	query := `
 		SELECT
 			user_id,
+			public_id,
 			email,
 			username,
 			full_name,
@@ -119,6 +128,7 @@ func (r *Repository) GetUserByID(ctx context.Context, id string) (*User, error) 
 
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&user.UserID,
+		&user.PublicID,
 		&user.Email,
 		&user.Username,
 		&user.FullName,

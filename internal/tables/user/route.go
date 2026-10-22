@@ -1,6 +1,7 @@
 package user
 
 import (
+	"orbit-backend-golang/internal/middleware"
 	"orbit-backend-golang/internal/security"
 
 	"github.com/gin-gonic/gin"
@@ -19,4 +20,15 @@ func UserRoutes(router *gin.RouterGroup, db *pgxpool.Pool, jwtService *security.
 		auth.POST("/login", handler.Login)
 		auth.POST("/refresh", handler.Refresh)
 	}
+
+	user := router.Group("/user")
+	user.Use(middleware.AuthMiddleware(jwtService))
+	{
+		user.GET("/directory/:publicID", handler.LookupProfile)
+		user.GET("/profile", handler.GetProfile)
+		user.PATCH("/profile", handler.UpdateProfile)
+		user.GET("/settings", handler.GetSettings)
+		user.PATCH("/settings", handler.Settings)
+	}
+
 }

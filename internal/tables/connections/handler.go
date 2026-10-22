@@ -16,19 +16,9 @@ func NewConnectionHandler(service *ConnectionService) *ConnectionHandler {
 }
 
 func (h *ConnectionHandler) CreateConnectionRequest(c *gin.Context) {
-	userID := c.GetString("userID")
-	if userID == "" {
-		fmt.Printf("No senderID Empty")
-		c.JSON(http.StatusExpectationFailed, gin.H{"error": true, "message": "SenderID Empty"})
-		return
-	}
+	userID := GetUserID(c)
 
-	receiverID := c.Param("receiverID")
-	if receiverID == "" {
-		fmt.Printf("ReceiverID Empty")
-		c.JSON(http.StatusExpectationFailed, gin.H{"error": true, "message": "ReceiverID Empty"})
-		return
-	}
+	receiverID := GetReceiverID(c)
 
 	connection_request, err := h.service.CreateNewConnectionRequestService(c.Request.Context(), userID, receiverID)
 	if err != nil {
@@ -40,12 +30,7 @@ func (h *ConnectionHandler) CreateConnectionRequest(c *gin.Context) {
 }
 
 func (h *ConnectionHandler) GetReceivedRequests(c *gin.Context) {
-	userID := c.GetString("userID")
-	if userID == "" {
-		fmt.Printf("User ID Empty")
-		c.JSON(http.StatusExpectationFailed, gin.H{"error": true, "message": "UserID Empty"})
-		return
-	}
+	userID := GetUserID(c)
 
 	connection_requests, err := h.service.GetReceivedRequestsService(c.Request.Context(), userID)
 	if err != nil {
@@ -57,12 +42,7 @@ func (h *ConnectionHandler) GetReceivedRequests(c *gin.Context) {
 }
 
 func (h *ConnectionHandler) GetSentRequests(c *gin.Context) {
-	userID := c.GetString("userID")
-	if userID == "" {
-		fmt.Printf("User ID Empty")
-		c.JSON(http.StatusExpectationFailed, gin.H{"error": true, "message": "UserID Empty"})
-		return
-	}
+	userID := GetUserID(c)
 
 	connection_requests, err := h.service.GetSentRequestsService(c.Request.Context(), userID)
 	if err != nil {
@@ -113,12 +93,7 @@ func (h *ConnectionHandler) DeleteConnectionHandler(c *gin.Context) {
 }
 
 func (h *ConnectionHandler) GetAllConnections(c *gin.Context) {
-	userID := c.GetString("userID")
-	if userID == "" {
-		fmt.Printf("User ID Empty")
-		c.JSON(http.StatusExpectationFailed, gin.H{"error": true, "message": "UserID Empty"})
-		return
-	}
+	userID := GetUserID(c)
 
 	connections, err := h.service.GetAllConnectionsService(c.Request.Context(), userID)
 
@@ -151,4 +126,24 @@ func GetSenderAndReceiverID(c *gin.Context) (string, string) {
 		return "", ""
 	}
 	return userID, receiverID
+}
+
+func GetUserID(c *gin.Context) string {
+	userID := c.GetString("userID")
+	if userID == "" {
+		fmt.Println("UserID Empty")
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": true, "message": "UserID Empty"})
+		return ""
+	}
+	return userID
+}
+
+func GetReceiverID(c *gin.Context) string {
+	receiverID := c.Param("receiverID")
+	if receiverID == "" {
+		fmt.Println("ReceiverID Empty")
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": true, "message": "ReceiverID Empty"})
+		return ""
+	}
+	return receiverID
 }

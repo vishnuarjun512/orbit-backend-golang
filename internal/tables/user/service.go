@@ -16,6 +16,7 @@ var (
 	ErrUserNotRegistered    = errors.New("User not registered")
 	ErrInvalidPassword      = errors.New("Invalid Password")
 	ErrTokenGenerationError = errors.New("Token not generated")
+	ErrInvalidPreferences   = errors.New("invalid preferences")
 )
 
 type Service struct {
@@ -103,6 +104,7 @@ func (s *Service) SignIn(ctx context.Context, req LoginRequest) (*LoginResponse,
 	safeUser := SafeUser{
 		Email:     user.Email,
 		UserID:    user.UserID,
+		PublicID:  user.PublicID,
 		Username:  user.Username,
 		FullName:  user.FullName,
 		AvatarURL: user.AvatarURL,

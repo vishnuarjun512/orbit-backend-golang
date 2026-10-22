@@ -38,6 +38,7 @@ authentication provider.
   integrity](#multi-tenancy-and-data-integrity)
 - [Authentication design](#authentication-design)
 - [API reference](#api-reference)
+- [Table and endpoint guides](#table-and-endpoint-guides)
 - [Development commands](#development-commands)
 - [Security notes](#security-notes)
 - [Roadmap](#roadmap)
@@ -1128,3 +1129,8 @@ goose -dir ./migrations postgres "$DATABASE_URL" status
 
 Add a license before distributing this project publicly. Until then, no
 license is specified.
+
+## Table and endpoint guides
+
+- [All table and endpoint guides](docs/README.md)
+- [Users, authentication, profiles, and settings](docs/users.md)
