@@ -67,15 +67,19 @@ func (h *Handler) GetSettings(c *gin.Context) {
 
 func (h *Handler) GetProfile(c *gin.Context) {
 	userID, ok := c.Get("userID")
+
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": true, "message": "Unauthorized"})
 		return
 	}
+
 	p, err := h.service.repo.GetProfile(c.Request.Context(), userID.(string))
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": true, "message": "Something went wrong"})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"error": false, "profile": p})
 }
 
@@ -115,15 +119,18 @@ func (h *Handler) UpdateProfile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": "status_message must be 160 characters or fewer"})
 		return
 	}
+
 	if req.Availability != nil && *req.Availability != "available" && *req.Availability != "away" && *req.Availability != "do_not_disturb" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": "Invalid availability"})
 		return
 	}
+
 	p, err := h.service.repo.UpdateProfile(c.Request.Context(), userID.(string), req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": true, "message": "Something went wrong"})
 		return
 	}
+
 	full, err := h.service.repo.GetProfile(c.Request.Context(), userID.(string))
 	if err == nil {
 		p.PublicID = full.PublicID

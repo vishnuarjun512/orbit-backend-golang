@@ -7,16 +7,12 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- Create users table
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    public_id TEXT,
 
     email VARCHAR(255) NOT NULL,
-    username VARCHAR(50) UNIQUE,
-    full_name VARCHAR(100),
-
     password_hash TEXT NOT NULL,
 
-    avatar_url TEXT,
-
-    email_verified_at TIMESTAMPTZ,
+    verified BOOLEAN NOT NULL DEFAULT 'FALSE',
 
     status VARCHAR(20) NOT NULL DEFAULT 'active',
 
@@ -31,11 +27,13 @@ CREATE TABLE users (
 CREATE UNIQUE INDEX users_email_unique_idx
 ON users (LOWER(email));
 
--- Prevent duplicate usernames regardless of letter case
-CREATE UNIQUE INDEX users_username_unique_idx
-ON users (LOWER(username));
+
+-- Prevent duplicate public_ids regardless of letter case
+CREATE UNIQUE INDEX users_public_id_unique_idx ON users (public_id);
 
 
 -- +goose Down
 
 DROP TABLE IF EXISTS users;
+DROP INDEX IF EXISTS users_email_unique_idx;
+DROP INDEX IF EXISTS users_public_id_unique_idx;

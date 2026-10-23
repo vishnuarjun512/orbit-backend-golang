@@ -16,6 +16,7 @@ func NewHomeHanlder(service *HomeService) *HomeHandler {
 }
 
 func (h *HomeHandler) GetHomeDataHandler(c *gin.Context) {
+	fmt.Print("Hello Reaching here")
 
 	userID := c.GetString("userID")
 	if userID == "" {
@@ -27,21 +28,29 @@ func (h *HomeHandler) GetHomeDataHandler(c *gin.Context) {
 	workspaces, err := h.service.workRepository.GetWorkSpaces(c.Request.Context(), userID, 5, 0)
 	if err != nil {
 		fmt.Printf("Workspaces Fetch Error : %v", err)
-		c.JSON(http.StatusGone, gin.H{"error": true, "message": "Workspaces Fetch failed"})
+		c.JSON(204, gin.H{"error": true, "message": "Workspaces Fetch failed"})
 		return
 	}
 
-	projects, err := h.service.projectRepository.GetProjectsByWorkspaceIDRepo(c.Request.Context(), workspaces[1].WorkSpaceID, 5, 0)
+	if len(workspaces) == 0 {
+		message := "Length of Workspaces is 0"
+		fmt.Printf("Workspaces Error : %s", message)
+		c.JSON(204, gin.H{"error": false, "message": message})
+		return
+	}
+
+	projects, err := h.service.projectRepository.GetProjectsByWorkspaceIDRepo(c.Request.Context(), workspaces[0].WorkSpaceID, 5, 0)
+
 	if err != nil {
 		fmt.Printf("Projects Fetch Error : %v", err)
-		c.JSON(http.StatusGone, gin.H{"error": true, "message": "Projects Fetch failed"})
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": true, "message": "Projects Fetch failed"})
 		return
 	}
 
 	tasks, err := h.service.taskRepository.GetTasksByWorkspaceID(c.Request.Context(), workspaces[0].WorkSpaceID)
 	if err != nil {
 		fmt.Printf("Task Fetch Error : %v", err)
-		c.JSON(http.StatusGone, gin.H{"error": true, "message": "Task Fetch failed"})
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": true, "message": "Task Fetch failed"})
 		return
 	}
 

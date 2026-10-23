@@ -105,9 +105,6 @@ func (s *Service) SignIn(ctx context.Context, req LoginRequest) (*LoginResponse,
 		Email:     user.Email,
 		UserID:    user.UserID,
 		PublicID:  user.PublicID,
-		Username:  user.Username,
-		FullName:  user.FullName,
-		AvatarURL: user.AvatarURL,
 		CreatedAt: user.CreatedAt,
 	}
 

@@ -25,10 +25,18 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 func (r *Repository) CreateUser(ctx context.Context, user *User) error {
 	tx, err := r.db.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("begin create user: %w", err)
+		return fmt.Errorf("Begin create user: %w", err)
 	}
+
+	userQuery := `
+		INSERT INTO users 
+		(public_id, email, password_hash) 
+		VALUES ('ORB-' || UPPER(ENCODE(gen_random_bytes(8), 'hex')), $1, $2) 
+		RETURNING user_id, public_id
+	`
+
 	defer tx.Rollback(ctx)
-	err = tx.QueryRow(ctx, `INSERT INTO users (public_id, email, password_hash) VALUES ('ORB-' || UPPER(ENCODE(gen_random_bytes(8), 'hex')), $1, $2) RETURNING user_id, public_id`, user.Email, user.PasswordHash).Scan(&user.UserID, &user.PublicID)
+	err = tx.QueryRow(ctx, userQuery, user.Email, user.PasswordHash).Scan(&user.UserID, &user.PublicID)
 
 	if err != nil {
 		// PostgreSQL error code 23505 = unique violation.
@@ -37,23 +45,38 @@ func (r *Repository) CreateUser(ctx context.Context, user *User) error {
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return ErrEmailAlreadyExists
 		}
-
-		return fmt.Errorf("create user: %w", err)
+		return fmt.Errorf("Create user: %w", err)
 	}
 
 	name := user.Email
 	if at := strings.IndexByte(name, '@'); at >= 0 {
 		name = name[:at]
 	}
-	if _, err := tx.Exec(ctx, `INSERT INTO user_profiles (user_id, display_name) VALUES ($1, $2)`, user.UserID, name); err != nil {
-		return fmt.Errorf("create user profile: %w", err)
+
+	userProfileQuery := `
+		INSERT INTO user_profiles 
+		(user_id, display_name) 
+		VALUES ($1 ,$2)
+	`
+
+	if _, err := tx.Exec(ctx, userProfileQuery, user.UserID, name); err != nil {
+		return fmt.Errorf("Create user profile: %w", err)
 	}
-	if _, err := tx.Exec(ctx, `INSERT INTO user_preferences (user_id) VALUES ($1)`, user.UserID); err != nil {
+
+	userPreferenceQuery := `
+		INSERT INTO user_preferences 
+		(user_id) 
+		VALUES ($1)
+	`
+
+	if _, err := tx.Exec(ctx, userPreferenceQuery, user.UserID); err != nil {
 		return fmt.Errorf("create user preferences: %w", err)
 	}
+
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("commit create user: %w", err)
 	}
+
 	return nil
 }
 
@@ -64,14 +87,10 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, e
 			user_id,
 			public_id,
 			email,
-			username,
-			full_name,
 			password_hash,
-			avatar_url,
-			email_verified_at,
+			verified,
 			status,
-			created_at,
-			updated_at
+			created_at
 		FROM users
 		WHERE LOWER(email) = LOWER($1)
 		LIMIT 1
@@ -83,14 +102,10 @@ func (r *Repository) GetUserByEmail(ctx context.Context, email string) (*User, e
 		&user.UserID,
 		&user.PublicID,
 		&user.Email,
-		&user.Username,
-		&user.FullName,
 		&user.PasswordHash,
-		&user.AvatarURL,
-		&user.EmailVerifiedAt,
+		&user.Verified,
 		&user.Status,
 		&user.CreatedAt,
-		&user.UpdatedAt,
 	)
 
 	if err != nil {
@@ -111,10 +126,7 @@ func (r *Repository) GetUserByID(ctx context.Context, id string) (*User, error) 
 			user_id,
 			public_id,
 			email,
-			username,
-			full_name,
 			password_hash,
-			avatar_url,
 			email_verified_at,
 			status,
 			created_at,
@@ -130,11 +142,8 @@ func (r *Repository) GetUserByID(ctx context.Context, id string) (*User, error) 
 		&user.UserID,
 		&user.PublicID,
 		&user.Email,
-		&user.Username,
-		&user.FullName,
 		&user.PasswordHash,
-		&user.AvatarURL,
-		&user.EmailVerifiedAt,
+		&user.Verified,
 		&user.Status,
 		&user.CreatedAt,
 		&user.UpdatedAt,

@@ -24,9 +24,7 @@ type SafeUser struct {
 	UserID    string    `json:"user_id"`
 	PublicID  string    `json:"public_id"`
 	Email     string    `json:"email"`
-	Username  *string   `json:"username"`
-	FullName  *string   `json:"full_name"`
-	AvatarURL *string   `json:"avatar_url,omitempty"`
+	Verified  bool      `json:"verified"`
 	CreatedAt time.Time `json:"created_at"`
 }
 

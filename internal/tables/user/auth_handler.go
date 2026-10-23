@@ -47,6 +47,7 @@ func (h *Handler) Register(c *gin.Context) {
 			})
 
 		default:
+			fmt.Printf("Error : %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error":   true,
 				"message": "Something went wrong",

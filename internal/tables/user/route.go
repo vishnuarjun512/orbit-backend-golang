@@ -30,5 +30,4 @@ func UserRoutes(router *gin.RouterGroup, db *pgxpool.Pool, jwtService *security.
 		user.GET("/settings", handler.GetSettings)
 		user.PATCH("/settings", handler.Settings)
 	}
-
 }

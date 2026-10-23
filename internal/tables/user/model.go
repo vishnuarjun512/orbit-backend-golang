@@ -3,15 +3,12 @@ package user
 import "time"
 
 type User struct {
-	UserID          string     `json:"user_id"`
-	PublicID        string     `json:"public_id"`
-	Email           string     `json:"email"`
-	Username        *string    `json:"username"`
-	FullName        *string    `json:"full_name"`
-	PasswordHash    string     `json:"-"`
-	AvatarURL       *string    `json:"avatar_url,omitempty"`
-	EmailVerifiedAt *time.Time `json:"email_verified_at,omitempty"`
-	Status          string     `json:"status"`
-	CreatedAt       time.Time  `json:"created_at"`
-	UpdatedAt       time.Time  `json:"updated_at"`
+	UserID       string    `json:"user_id"`
+	PublicID     string    `json:"public_id"`
+	Email        string    `json:"email"`
+	PasswordHash string    `json:"-"`
+	Verified     bool      `json:"verified"`
+	Status       string    `json:"status"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
